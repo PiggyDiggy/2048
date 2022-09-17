@@ -27,16 +27,32 @@
         :tile="{ index, value, isNew }"
       />
     </div>
+    <Modal
+      :show="gameOver"
+      @restart="restart"
+      text="Game Over"
+      alternative="Back"
+      @alternative="() => {}"
+    />
+    <Modal
+      :show="hasWon"
+      @restart="restart"
+      text="You Won"
+      alternative="Continue"
+      @alternative="this.hasWon = false"
+    />
   </div>
 </template>
 
 <script>
 import { GameController } from "../utils/GameController";
 import Tile from "./Tile.vue";
+import Modal from "./Modal.vue";
 
 export default {
   components: {
     Tile,
+    Modal,
   },
   data() {
     const controller = new GameController();
@@ -49,7 +65,15 @@ export default {
         ArrowRight: controller.keyRight,
       },
       controller,
+      gameOver: false,
+      hasWon: false,
     };
+  },
+  methods: {
+    restart() {
+      this.gameOver = false;
+      this.controller.restart();
+    },
   },
   computed: {
     grid() {
@@ -71,6 +95,14 @@ export default {
 
       if (!this.flatGrid.some((cell) => cell.moved)) return;
       this.controller.fill(false, 1);
+
+      if (this.controller.hasLost()) {
+        this.gameOver = true;
+      }
+
+      if (!this.controller.won && this.controller.hasWon()) {
+        this.hasWon = true;
+      }
     });
   },
 };

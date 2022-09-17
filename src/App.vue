@@ -21,9 +21,6 @@ export default {
 }
 
 #app {
-  font-family: "Barlow", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-align: center;
   height: 100%;
 }
@@ -38,6 +35,9 @@ main {
 }
 
 body {
+  font-family: "Barlow", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   margin: 0;
   height: 100vh;
 }

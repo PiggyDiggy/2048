@@ -5,6 +5,7 @@ export class GameController {
     this._grid = generateEmptyGrid();
     this.nextId = 0;
     this.tiles = [];
+    this.won = false;
     this.flatGrid.map((cell, index) => (cell.index = index));
     this.fill(true);
   }
@@ -164,5 +165,30 @@ export class GameController {
     setTimeout(() => {
       this.fill(true);
     }, 0);
+  }
+
+  hasLost() {
+    if (this.availableCells.length) return false;
+    for (let i = 0; i < this._grid.length; i++) {
+      for (let j = 0; j < this._grid.length; j++) {
+        const curValue = this._grid[i][j].value;
+        if (
+          curValue === this._grid[i + 1]?.[j]?.value ||
+          curValue === this._grid[i]?.[j + 1]?.value
+        )
+          return false;
+      }
+    }
+    return true;
+  }
+
+  hasWon() {
+    for (const tile of this.tiles) {
+      if (tile.value === 2048) {
+        this.won = true;
+        return true;
+      }
+    }
+    return false;
   }
 }
