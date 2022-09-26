@@ -2,9 +2,8 @@
   <div>
     <div class="buttons">
       <div>
-        <button class="restart-button" @click="controller.restart">
-          Restart
-        </button>
+        <button class="restart-button" @click="restart">Restart</button>
+        <button class="back-button" @click="back">Back</button>
       </div>
     </div>
     <div class="grid-layout">
@@ -20,26 +19,22 @@
         ></div>
       </div>
     </div>
-    <div class="grid">
-      <Tile
-        v-for="{ id, index, value, isNew } in tiles"
-        :key="id"
-        :tile="{ index, value, isNew }"
-      />
+    <div class="grid" :class="{ backwards }">
+      <Tile v-for="tile in tiles" :key="tile.id" :tile="tile" />
     </div>
     <Modal
       :show="gameOver"
       @restart="restart"
       text="Game Over"
       alternative="Back"
-      @alternative="() => {}"
+      @alternative="back"
     />
     <Modal
       :show="hasWon"
       @restart="restart"
       text="You Won"
       alternative="Continue"
-      @alternative="this.hasWon = false"
+      @alternative="hasWon = false"
     />
   </div>
 </template>
@@ -67,12 +62,33 @@ export default {
       controller,
       gameOver: false,
       hasWon: false,
+      backwards: false,
+      history: [],
     };
   },
   methods: {
     restart() {
       this.gameOver = false;
+      this.backwards = false;
       this.controller.restart();
+      this.history = [];
+    },
+    back() {
+      const state = this.history.pop();
+      if (state === undefined) return;
+      this.backwards = true;
+      this.gameOver = false;
+      this.controller.back(state);
+    },
+    copyState() {
+      return {
+        grid: JSON.parse(JSON.stringify(this.grid)),
+        tiles: JSON.parse(JSON.stringify(this.tiles)),
+      };
+    },
+    updateHistory(state) {
+      if (this.history.length === 5) this.history.shift();
+      this.history.push(state);
     },
   },
   computed: {
@@ -87,14 +103,19 @@ export default {
     },
   },
   created() {
-    document.addEventListener("keydown", (event) => {
-      const { key } = event;
+    document.addEventListener("keydown", ({ key }) => {
       if (!Object.keys(this.keys).includes(key)) return;
+      const lastState = this.copyState();
+      this.backwards = false;
       this.controller.clear();
       this.keys[key]();
 
-      if (!this.flatGrid.some((cell) => cell.moved)) return;
-      this.controller.fill(false, 1);
+      if (!this.flatGrid.some((cell) => cell.moved)) {
+        return this.controller.restoreTiles(lastState);
+      }
+
+      this.controller.fill(1);
+      this.updateHistory(lastState);
 
       if (this.controller.hasLost()) {
         this.gameOver = true;

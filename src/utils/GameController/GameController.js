@@ -6,8 +6,7 @@ export class GameController {
     this.nextId = 0;
     this.tiles = [];
     this.won = false;
-    this.flatGrid.map((cell, index) => (cell.index = index));
-    this.fill(true);
+    this.fill();
   }
 
   get grid() {
@@ -18,8 +17,8 @@ export class GameController {
     this._grid = newGrid;
   }
 
-  fill(isEmpty = false, count = 2) {
-    for (let i = 0; i < count; i++) this.createRandomCell(isEmpty);
+  fill(count = 2) {
+    for (let i = 0; i < count; i++) this.createRandomCell(count === 2);
   }
 
   createRandomCell(isEmpty) {
@@ -157,14 +156,19 @@ export class GameController {
   restart() {
     this.nextId = 0;
     this.tiles = [];
-    for (const cell of this.flatGrid) {
-      cell.value = 0;
-      cell.changed = false;
-      cell.moved = false;
-    }
+    this._grid = generateEmptyGrid();
     setTimeout(() => {
-      this.fill(true);
+      this.fill();
     }, 0);
+  }
+
+  back(state) {
+    this._grid = state.grid;
+    this.tiles = state.tiles;
+  }
+
+  restoreTiles(state) {
+    this.tiles = state.tiles;
   }
 
   hasLost() {

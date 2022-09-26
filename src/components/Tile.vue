@@ -55,7 +55,11 @@ export default {
 }
 
 .tile-enter-active {
-  transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+.backwards .tile-enter-active {
+  transition: transform 0s 0.2s linear;
 }
 
 .grid-tile.new .tile-inner {
