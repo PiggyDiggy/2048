@@ -4,6 +4,7 @@ export class GameController {
   constructor() {
     this._grid = generateEmptyGrid();
     this.nextId = 0;
+    this.score = 0;
     this.tiles = [];
     this.won = false;
     this.fill();
@@ -142,6 +143,7 @@ export class GameController {
     tileTo.delete = true;
     tileFrom.delete = true;
     this.addTile(cellTo.value * 2, cellTo.index, true);
+    this.score += cellTo.value * 2;
   }
 
   clear() {
@@ -157,14 +159,17 @@ export class GameController {
     this.nextId = 0;
     this.tiles = [];
     this._grid = generateEmptyGrid();
+    this.won = false;
     setTimeout(() => {
       this.fill();
+      this.score = 0;
     }, 0);
   }
 
   back(state) {
     this._grid = state.grid;
     this.tiles = state.tiles;
+    this.score = state.score;
   }
 
   restoreTiles(state) {

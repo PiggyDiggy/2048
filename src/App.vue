@@ -44,6 +44,6 @@ body {
 
 :root {
   --layout-border: #373a40;
-  --cell-layout: #686d76;
+  --layout-cell: #686d76;
 }
 </style>

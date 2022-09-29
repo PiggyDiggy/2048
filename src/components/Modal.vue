@@ -4,10 +4,10 @@
       <div class="modal" v-if="show">
         <div class="modal__text">{{ text }}</div>
         <div class="modal__buttons">
-          <button class="restart-button" @click="$emit('restart')">
+          <button class="modal__button modal__restart-button" @click="$emit('restart')">
             Restart
           </button>
-          <button class="alternative-button" @click="$emit('alternative')">
+          <button class="modal__button" @click="$emit('alternative')">
             {{ alternative }}
           </button>
         </div>
@@ -52,6 +52,28 @@ export default {
   z-index: 20;
   display: flex;
   gap: 16px;
+}
+
+.modal__button {
+  font-size: 20px;
+  font-family: inherit;
+  border: none;
+  background-color: #eee;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease-out;
+}
+
+.modal__button:hover,
+.modal__button:focus {
+  outline: none;
+  background-color: #ddd;
+}
+
+.modal__restart-button {
+  color: #ff2d2d;
 }
 
 .backdrop {

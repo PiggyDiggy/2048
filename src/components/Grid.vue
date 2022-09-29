@@ -1,9 +1,17 @@
 <template>
-  <div>
-    <div class="buttons">
-      <div>
-        <button class="restart-button" @click="restart">Restart</button>
-        <button class="back-button" @click="back">Back</button>
+  <div class="game-wrapper" :class="{ blur: hasWon || gameOver }">
+    <div class="control-panel">
+      <div class="scores">
+        <div>Score: {{ getScore() }}</div>
+      </div>
+      <div class="control-buttons">
+        <button class="control-button back-button" @click="back">
+          <img src="../assets/arrow-back.svg" alt="Back" title="Back" />
+          <div class="history-length">{{ history.length }}</div>
+        </button>
+        <button class="control-button" @click="restart">
+          <img src="../assets/refresh.svg" alt="Restart" title="Restart" />
+        </button>
       </div>
     </div>
     <div class="grid-layout">
@@ -69,6 +77,7 @@ export default {
   methods: {
     restart() {
       this.gameOver = false;
+      this.hasWon = false;
       this.backwards = false;
       this.controller.restart();
       this.history = [];
@@ -84,11 +93,15 @@ export default {
       return {
         grid: JSON.parse(JSON.stringify(this.grid)),
         tiles: JSON.parse(JSON.stringify(this.tiles)),
+        score: this.getScore(),
       };
     },
     updateHistory(state) {
       if (this.history.length === 5) this.history.shift();
       this.history.push(state);
+    },
+    getScore() {
+      return this.controller.score;
     },
   },
   computed: {
@@ -137,16 +150,67 @@ export default {
 </script>
 
 <style>
-main > div {
+.game-wrapper {
+  position: relative;
+  transition: filter 0.2s ease-out;
+}
+
+.game-wrapper.blur {
+  filter: blur(3px);
+}
+
+.control-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 16px;
+  padding: 0 8px;
+  font-size: 20px;
+}
+
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-button {
+  border: none;
+  border-radius: 12px;
+  padding: 6px;
+  background-color: var(--layout-cell);
+  cursor: pointer;
+  font: inherit;
+  transition: background-color 0.2s ease-out;
+}
+
+.control-button:hover,
+.control-button:focus {
+  outline: none;
+  background-color: #565a61;
+}
+
+.control-button img {
+  display: block;
+}
+
+.back-button {
   position: relative;
 }
 
-.buttons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding: 0 8px;
+.history-length {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  border: 2px solid white;
+  line-height: 1;
+  border-radius: 100%;
+  background-color: var(--layout-cell);
+  color: white;
+  transform: translate(25%, -25%);
 }
 
 .grid {
@@ -174,7 +238,7 @@ main > div {
 .grid-layout__cell {
   height: 110px;
   width: 110px;
-  background-color: var(--cell-layout);
+  background-color: var(--layout-cell);
   border: 5px solid var(--layout-border);
   border-radius: 12px;
 }
