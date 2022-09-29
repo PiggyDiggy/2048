@@ -125,6 +125,13 @@ export default {
         this.hasWon = true;
       }
     });
+    document.addEventListener("keydown", (event) => {
+      if (
+        event.ctrlKey &&
+        (event.key.toLowerCase() === "z" || event.key.toLowerCase() === "я")
+      )
+        this.back();
+    });
   },
 };
 </script>

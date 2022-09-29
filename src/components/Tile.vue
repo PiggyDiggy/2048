@@ -1,7 +1,7 @@
 <template>
-  <div class="grid-tile" :style="pos" :class="{ new: tile.isNew }">
+  <div class="grid-tile" :style="pos">
     <transition name="tile" appear>
-      <div class="tile-inner">
+      <div class="tile-inner" :class="className" :style="color">
         {{ tile.value }}
       </div>
     </transition>
@@ -10,6 +10,23 @@
 
 <script>
 export default {
+  data() {
+    return {
+      colors: {
+        2: "#eee",
+        4: "#fff3dd",
+        8: "#feddb1",
+        16: "#fed39c",
+        32: "#fdd08c",
+        64: "#ffc87d",
+        128: "#fec16e",
+        256: "#ffb972",
+        512: "#fba877",
+        1024: "#ff9182",
+        2048: "#ff7070",
+      },
+    };
+  },
   props: {
     tile: Object,
   },
@@ -19,6 +36,18 @@ export default {
         transform: translate(${(this.tile.index % 4) * 100}%, ${
         Math.floor(this.tile.index / 4) * 100
       }%)`;
+    },
+    className() {
+      return {
+        new: this.tile.isNew,
+        merged: this.tile.delete,
+      };
+    },
+    color() {
+      const color = this.colors[this.tile.value] || "#8758ff";
+      return this.tile.value < 2048
+        ? `background-color: ${color}`
+        : `background-color: ${color}; color: white`;
     },
   },
 };
@@ -32,7 +61,7 @@ export default {
   top: -5px;
   left: -5px;
   padding: 5px;
-  font-size: 2.3rem;
+  font-size: 36px;
   transition: transform 0.2s ease;
 }
 
@@ -43,7 +72,9 @@ export default {
   width: 100%;
   height: 100%;
   border-radius: 6px;
-  background-color: #e6ccb2;
+  font-weight: bold;
+  color: var(--layout-border);
+  will-change: transform;
 }
 
 .tile-enter-from {
@@ -59,10 +90,15 @@ export default {
 }
 
 .backwards .tile-enter-active {
-  transition: transform 0s 0.2s linear;
+  transition: transform 0s;
 }
 
-.grid-tile.new .tile-inner {
-  transition-delay: 0.05s;
+.backwards .tile-enter-active.merged {
+  transition: none 0.2s;
+  opacity: 0;
+}
+
+.tile-inner.new {
+  transition-delay: 0.09s;
 }
 </style>

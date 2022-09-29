@@ -43,7 +43,7 @@ body {
 }
 
 :root {
-  --layout-border: #9c6644;
-  --cell-layout: #ddb892;
+  --layout-border: #373a40;
+  --cell-layout: #686d76;
 }
 </style>
