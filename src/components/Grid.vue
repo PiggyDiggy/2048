@@ -1,8 +1,9 @@
 <template>
-  <div class="game-wrapper" :class="{ blur: hasWon || gameOver }">
+  <div class="game-wrapper">
     <div class="control-panel">
       <div class="scores">
-        <div>Score: {{ getScore() }}</div>
+        <div>Max Score: {{ getMaxScore() }}</div>
+        <div>Score: {{ controller.score }}</div>
       </div>
       <div class="control-buttons">
         <button class="control-button back-button" @click="back">
@@ -49,6 +50,7 @@
 
 <script>
 import { GameController } from "../utils/GameController";
+import { Storage } from "../utils/LocalStorage";
 import Tile from "./Tile.vue";
 import Modal from "./Modal.vue";
 
@@ -81,27 +83,52 @@ export default {
       this.backwards = false;
       this.controller.restart();
       this.history = [];
+      Storage.hasWon = false;
     },
     back() {
       const state = this.history.pop();
       if (state === undefined) return;
       this.backwards = true;
       this.gameOver = false;
-      this.controller.back(state);
+      this.controller.replaceState(state);
     },
     copyState() {
       return {
         grid: JSON.parse(JSON.stringify(this.grid)),
         tiles: JSON.parse(JSON.stringify(this.tiles)),
-        score: this.getScore(),
+        score: this.controller.score,
       };
     },
     updateHistory(state) {
       if (this.history.length === 5) this.history.shift();
       this.history.push(state);
     },
-    getScore() {
-      return this.controller.score;
+    loadFromStorage() {
+      const lastState = Storage.lastState;
+      if (lastState && lastState.tiles.length) {
+        this.controller.replaceState(lastState);
+      } else {
+        this.controller.fill();
+      }
+      this.history = Storage.history;
+    },
+    getMaxScore() {
+      return Math.max(Storage.maxScore, this.controller.score);
+    },
+  },
+  watch: {
+    history: {
+      handler() {
+        Storage.maxScore = this.getMaxScore();
+        Storage.history = this.history;
+        Storage.lastState = {
+          grid: this.grid,
+          tiles: this.tiles,
+          score: this.controller.score,
+          nextId: this.controller.nextId,
+        };
+      },
+      deep: true,
     },
   },
   computed: {
@@ -116,8 +143,10 @@ export default {
     },
   },
   created() {
+    this.loadFromStorage();
+
     document.addEventListener("keydown", ({ key }) => {
-      if (!Object.keys(this.keys).includes(key)) return;
+      if (!this.keys[key]) return;
       const lastState = this.copyState();
       this.backwards = false;
       this.controller.clear();
@@ -134,8 +163,9 @@ export default {
         this.gameOver = true;
       }
 
-      if (!this.controller.won && this.controller.hasWon()) {
+      if (!Storage.hasWon && this.controller.hasWon()) {
         this.hasWon = true;
+        Storage.hasWon = true;
       }
     });
     document.addEventListener("keydown", (event) => {
@@ -153,10 +183,6 @@ export default {
 .game-wrapper {
   position: relative;
   transition: filter 0.2s ease-out;
-}
-
-.game-wrapper.blur {
-  filter: blur(3px);
 }
 
 .control-panel {
@@ -193,6 +219,8 @@ export default {
 
 .control-button img {
   display: block;
+  width: 32px;
+  height: 32px;
 }
 
 .back-button {

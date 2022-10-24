@@ -6,8 +6,6 @@ export class GameController {
     this.nextId = 0;
     this.score = 0;
     this.tiles = [];
-    this.won = false;
-    this.fill();
   }
 
   get grid() {
@@ -159,17 +157,17 @@ export class GameController {
     this.nextId = 0;
     this.tiles = [];
     this._grid = generateEmptyGrid();
-    this.won = false;
     setTimeout(() => {
       this.fill();
-      this.score = 0;
     }, 0);
+    this.score = 0;
   }
 
-  back(state) {
-    this._grid = state.grid;
-    this.tiles = state.tiles;
-    this.score = state.score;
+  replaceState({ grid, tiles, score, nextId }) {
+    this._grid = grid;
+    this.tiles = tiles;
+    this.score = score;
+    this.nextId = nextId ?? this.nextId;
   }
 
   restoreTiles(state) {
@@ -192,12 +190,6 @@ export class GameController {
   }
 
   hasWon() {
-    for (const tile of this.tiles) {
-      if (tile.value === 2048) {
-        this.won = true;
-        return true;
-      }
-    }
-    return false;
+    return this.tiles.some((tile) => tile.value === 2048);
   }
 }
