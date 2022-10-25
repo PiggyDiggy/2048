@@ -39,7 +39,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
-  height: 100vh;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+html {
+  height: 100%;
 }
 
 :root {

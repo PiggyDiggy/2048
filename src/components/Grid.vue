@@ -50,6 +50,7 @@
 
 <script>
 import { GameController } from "../utils/GameController";
+import { SwipeEvents } from "../utils/SwipeEvents";
 import { Storage } from "../utils/LocalStorage";
 import Tile from "./Tile.vue";
 import Modal from "./Modal.vue";
@@ -61,6 +62,7 @@ export default {
   },
   data() {
     const controller = new GameController();
+    new SwipeEvents(document);
 
     return {
       keys: {
@@ -115,6 +117,33 @@ export default {
     getMaxScore() {
       return Math.max(Storage.maxScore, this.controller.score);
     },
+    swipe({ direction }) {
+      const key = `Arrow${direction[0].toUpperCase()}${direction.slice(1)}`;
+      this.move(key);
+    },
+    move(key) {
+      if (!this.keys[key]) return;
+      const lastState = this.copyState();
+      this.backwards = false;
+      this.controller.clear();
+      this.keys[key]();
+
+      if (!this.flatGrid.some((cell) => cell.moved)) {
+        return this.controller.restoreTiles(lastState);
+      }
+
+      this.controller.fill(1);
+      this.updateHistory(lastState);
+
+      if (this.controller.hasLost()) {
+        this.gameOver = true;
+      }
+
+      if (!Storage.hasWon && this.controller.hasWon()) {
+        this.hasWon = true;
+        Storage.hasWon = true;
+      }
+    },
   },
   watch: {
     history: {
@@ -145,36 +174,14 @@ export default {
   created() {
     this.loadFromStorage();
 
-    document.addEventListener("keydown", ({ key }) => {
-      if (!this.keys[key]) return;
-      const lastState = this.copyState();
-      this.backwards = false;
-      this.controller.clear();
-      this.keys[key]();
-
-      if (!this.flatGrid.some((cell) => cell.moved)) {
-        return this.controller.restoreTiles(lastState);
-      }
-
-      this.controller.fill(1);
-      this.updateHistory(lastState);
-
-      if (this.controller.hasLost()) {
-        this.gameOver = true;
-      }
-
-      if (!Storage.hasWon && this.controller.hasWon()) {
-        this.hasWon = true;
-        Storage.hasWon = true;
-      }
-    });
+    document.addEventListener("keydown", ({ key }) => this.move(key));
     document.addEventListener("keydown", (event) => {
-      if (
-        event.ctrlKey &&
-        (event.key.toLowerCase() === "z" || event.key.toLowerCase() === "я")
-      )
-        this.back();
+      const key = event.key.toLowerCase();
+      if (event.ctrlKey && (key === "z" || key === "я")) this.back();
     });
+    document.addEventListener("custom:swipe", ({ detail }) =>
+      this.swipe(detail)
+    );
   },
 };
 </script>
@@ -182,7 +189,6 @@ export default {
 <style>
 .game-wrapper {
   position: relative;
-  transition: filter 0.2s ease-out;
 }
 
 .control-panel {
@@ -219,8 +225,8 @@ export default {
 
 .control-button img {
   display: block;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
 }
 
 .back-button {
@@ -269,5 +275,63 @@ export default {
   background-color: var(--layout-cell);
   border: 5px solid var(--layout-border);
   border-radius: 12px;
+}
+
+@media screen and (max-width: 500px) {
+  .grid-layout {
+    border-width: 4px;
+    border-radius: 10px;
+  }
+  .grid-layout__cell {
+    height: 90px;
+    width: 90px;
+    border-width: 4px;
+    border-radius: 10px;
+  }
+  .grid {
+    width: 370px;
+    height: 370px;
+    border-width: 11px;
+  }
+  .control-panel {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .control-button img {
+    height: 30px;
+    width: 30px;
+  }
+  .history-length {
+    line-height: 1.15;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .grid-layout {
+    border-width: 3px;
+    border-radius: 8px;
+  }
+  .grid-layout__cell {
+    height: 75px;
+    width: 75px;
+    border-width: 3px;
+    border-radius: 8px;
+  }
+  .grid {
+    width: 310px;
+    height: 310px;
+    border-width: 12px;
+  }
+  .control-panel {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .control-button img {
+    height: 28px;
+    width: 28px;
+  }
+  .history-length {
+    line-height: 1.3;
+  }
 }
 </style>
