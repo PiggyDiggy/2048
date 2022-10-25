@@ -17,15 +17,15 @@ export class GameController {
   }
 
   fill(count = 2) {
-    for (let i = 0; i < count; i++) this.createRandomCell(count === 2);
+    for (let i = 0; i < count; i++) this.createRandomCell();
   }
 
-  createRandomCell(isEmpty) {
+  createRandomCell() {
     const index = this.choice(this.availableCells).index;
     const cell = this.flatGrid[index];
     const value = Math.random() < 0.9 ? 2 : 4;
     cell.value = value;
-    this.addTile(value, index, !isEmpty);
+    this.addTile(value, index);
   }
 
   choice(arr) {
@@ -40,8 +40,8 @@ export class GameController {
     return this._grid.flat();
   }
 
-  addTile(value, index, isNew = false) {
-    const tile = { value, index, delete: false, isNew, id: this.nextId++ };
+  addTile(value, index) {
+    const tile = { value, index, delete: false, isNew: true, id: this.nextId++ };
     this.tiles.push(tile);
   }
 
@@ -140,7 +140,7 @@ export class GameController {
     const tileTo = this.tiles.find((tile) => tile.index === cellTo.index);
     tileTo.delete = true;
     tileFrom.delete = true;
-    this.addTile(cellTo.value * 2, cellTo.index, true);
+    this.addTile(cellTo.value * 2, cellTo.index);
     this.score += cellTo.value * 2;
   }
 

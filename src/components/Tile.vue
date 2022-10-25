@@ -86,7 +86,11 @@ export default {
 }
 
 .tile-enter-active.new {
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+  transition: transform 0.2s 0.09s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+.restarting .tile-enter-active.new {
+  transition-delay: 0s;
 }
 
 .backwards .tile-enter-active {
@@ -96,10 +100,6 @@ export default {
 .backwards .tile-enter-active.merged {
   transition: none 0.2s;
   opacity: 0;
-}
-
-.tile-inner.new {
-  transition-delay: 0.09s;
 }
 
 @media screen and (max-width: 500px) {

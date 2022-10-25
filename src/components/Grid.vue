@@ -28,7 +28,7 @@
         ></div>
       </div>
     </div>
-    <div class="grid" :class="{ backwards }">
+    <div class="grid" :class="{ backwards, restarting }">
       <Tile v-for="tile in tiles" :key="tile.id" :tile="tile" />
     </div>
     <Modal
@@ -75,6 +75,7 @@ export default {
       gameOver: false,
       hasWon: false,
       backwards: false,
+      restarting: false,
       history: [],
     };
   },
@@ -83,6 +84,7 @@ export default {
       this.gameOver = false;
       this.hasWon = false;
       this.backwards = false;
+      this.restarting = true;
       this.controller.restart();
       this.history = [];
       Storage.hasWon = false;
@@ -125,6 +127,7 @@ export default {
       if (!this.keys[key]) return;
       const lastState = this.copyState();
       this.backwards = false;
+      this.restarting = false;
       this.controller.clear();
       this.keys[key]();
 
@@ -302,7 +305,8 @@ export default {
     width: 30px;
   }
   .history-length {
-    line-height: 1.15;
+    height: 24px;
+    width: 24px;
   }
 }
 
@@ -331,7 +335,8 @@ export default {
     width: 28px;
   }
   .history-length {
-    line-height: 1.3;
+    height: 22px;
+    width: 22px;
   }
 }
 </style>
